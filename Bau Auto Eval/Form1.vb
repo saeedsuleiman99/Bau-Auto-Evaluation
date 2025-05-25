@@ -127,19 +127,26 @@ Public Class Form1
             Next
         End Try
         tq += 2
+        Dim authcode = GetAuthCode(source_)
         Log("Captcha Code Found and is '" & code & "'")
-        DoPost("https://app2.bau.edu.jo:7799/eval/EvaluationSubmit.jsp", CookieJar, "captcha=" & code)
+        Log("Auth Code Found and is '" & authcode & "'")
+        DoPost("https://app2.bau.edu.jo:7799/eval/EvaluationSubmit.jsp", CookieJar, "authcode=" & authcode & "&captcha=" & code)
         Log("Applying code...")
         RegularPage("https://app2.bau.edu.jo:7799/eval/Finish.jsp", CookieJar)
         Log("Professor (" & prof & ") has been evaluated successfully")
         cureval += 1
     End Sub
+    Function GetAuthCode(source As String)
+        Return Getbetween("authcode"" value='", "'/>", source)
+    End Function
     Function ExtractCode(Source As String)
+        Dim cap As String = Source
         Try
-            Dim cap As String = Source
-            cap = Split(cap, "<!-- START CAPTCHA -->", -1, CompareMethod.Text)(1)
+            cap = ConvertToArabic(cap)
+            cap = Split(cap, "أدخل الرقم الآمن التالي في المربع:", -1, CompareMethod.Text)(1)
             cap = Split(cap, "<br/>", -1, CompareMethod.Text)(0)
-            Dim myString As String = cap
+            Dim myString As String = cap.Replace(" ", "").Replace(vbCr, "").Replace(vbLf, "")
+
             Dim ResultString As String
 
             Dim i As Integer
